@@ -3,7 +3,6 @@ import numpy as np
 import sys
 from camera_config import *
 from PIL import Image
-from time import sleep
 
 class uEyeCAM :
     def __init__(self):
@@ -82,13 +81,12 @@ class uEyeCAM :
         else :
             raise print("Invalid format. Check the IMGFRMT_LIST in camera_config")
 
-    def get_img(self):
+    def snap(self):
         # Capture style
         # IS_DONT_WAIT mode : c_int(0)
         # self.uEyeDll.is_CaptureVideo(self.CAM, c_int(0))
         self.uEyeDll.is_FreezeVideo(self.CAM, c_int(1))
         self.uEyeDll.is_CopyImageMem(self.CAM, self.pcImgMem, self.pid, self.img_array)
-
 
         img_array = np.frombuffer(self.img_array, dtype=ctypes.c_ubyte)
         image = np.reshape(img_array, (self.height, self.width, self.channel)).astype('uint8')
@@ -97,5 +95,6 @@ class uEyeCAM :
         b, g, r, a = image.T
         k = np.array([r, g, b, a])
         image = k.transpose()
-        test = Image.fromarray(image, mode='RGBA')
-        test.show()
+
+        result_img = Image.fromarray(image, mode='RGBA')
+        return result_img
